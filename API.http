@@ -1,0 +1,378 @@
+@host = http://localhost:3000
+
+### ============================================================
+### HEALTH
+### ============================================================
+
+GET {{host}}/
+
+### ============================================================
+### USERS
+### ============================================================
+
+### Create user (customer)
+POST {{host}}/users
+Content-Type: application/json
+
+{
+  "name": "Jothinathan",
+  "email": "jothi@example.com",
+  "password": "secret123",
+  "role": "customer"
+}
+
+### Create user (admin)
+POST {{host}}/users
+Content-Type: application/json
+
+{
+  "name": "Admin User",
+  "email": "admin@example.com",
+  "password": "admin123",
+  "role": "admin"
+}
+
+### Create user (duplicate email — expect 409)
+POST {{host}}/users
+Content-Type: application/json
+
+{
+  "name": "Duplicate",
+  "email": "jothi@example.com",
+  "password": "x"
+}
+
+### List all users
+GET {{host}}/users
+
+### Get user by id
+GET {{host}}/users/1
+
+### Get non-existent user (expect 404)
+GET {{host}}/users/999
+
+### Update user
+PATCH {{host}}/users/1
+Content-Type: application/json
+
+{
+  "name": "Jothinathan N"
+}
+
+### Delete user
+DELETE {{host}}/users/2
+
+### ============================================================
+### CATEGORIES
+### ============================================================
+
+### Create category
+POST {{host}}/categories
+Content-Type: application/json
+
+{
+  "name": "Electronics",
+  "description": "Phones, laptops, accessories"
+}
+
+### Create category
+POST {{host}}/categories
+Content-Type: application/json
+
+{
+  "name": "Books",
+  "description": "Fiction and non-fiction"
+}
+
+### Create category
+POST {{host}}/categories
+Content-Type: application/json
+
+{
+  "name": "Clothing"
+}
+
+### Duplicate category (expect 409)
+POST {{host}}/categories
+Content-Type: application/json
+
+{
+  "name": "Electronics"
+}
+
+### List categories
+GET {{host}}/categories
+
+### Get category by id
+GET {{host}}/categories/1
+
+### Update category
+PATCH {{host}}/categories/3
+Content-Type: application/json
+
+{
+  "description": "Apparel and accessories"
+}
+
+### Delete category
+DELETE {{host}}/categories/3
+
+### ============================================================
+### PRODUCTS
+### ============================================================
+
+### Create product (laptop)
+POST {{host}}/products
+Content-Type: application/json
+
+{
+  "name": "MacBook Pro 14",
+  "description": "Apple M3 Pro, 18GB RAM",
+  "price": 1999.99,
+  "stock": 10,
+  "categoryId": 1
+}
+
+### Create product (phone)
+POST {{host}}/products
+Content-Type: application/json
+
+{
+  "name": "iPhone 15",
+  "description": "128GB, Blue",
+  "price": 799.00,
+  "stock": 25,
+  "categoryId": 1
+}
+
+### Create product (book)
+POST {{host}}/products
+Content-Type: application/json
+
+{
+  "name": "Clean Code",
+  "description": "Robert C. Martin",
+  "price": 32.50,
+  "stock": 50,
+  "categoryId": 2
+}
+
+### Create product with invalid category (expect 404)
+POST {{host}}/products
+Content-Type: application/json
+
+{
+  "name": "Ghost",
+  "price": 10,
+  "stock": 1,
+  "categoryId": 999
+}
+
+### Create product with negative price (expect 400)
+POST {{host}}/products
+Content-Type: application/json
+
+{
+  "name": "Bad",
+  "price": -5,
+  "stock": 1,
+  "categoryId": 1
+}
+
+### List all products
+GET {{host}}/products
+
+### Filter by category
+GET {{host}}/products?categoryId=1
+
+### Search by name
+GET {{host}}/products?search=iphone
+
+### Combined filter
+GET {{host}}/products?categoryId=1&search=mac
+
+### Get product by id
+GET {{host}}/products/1
+
+### Update product
+PATCH {{host}}/products/1
+Content-Type: application/json
+
+{
+  "price": 1899.99,
+  "stock": 12
+}
+
+### Delete product
+DELETE {{host}}/products/3
+
+### ============================================================
+### CART (user 1)
+### ============================================================
+
+### View empty cart
+GET {{host}}/users/1/cart
+
+### Add item to cart
+POST {{host}}/users/1/cart/items
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "quantity": 1
+}
+
+### Add another item
+POST {{host}}/users/1/cart/items
+Content-Type: application/json
+
+{
+  "productId": 2,
+  "quantity": 2
+}
+
+### Add same product again (quantities merge)
+POST {{host}}/users/1/cart/items
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "quantity": 1
+}
+
+### Add more than stock (expect 400)
+POST {{host}}/users/1/cart/items
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "quantity": 9999
+}
+
+### View cart
+GET {{host}}/users/1/cart
+
+### Update item quantity
+PATCH {{host}}/users/1/cart/items/2
+Content-Type: application/json
+
+{
+  "quantity": 3
+}
+
+### Remove item from cart
+DELETE {{host}}/users/1/cart/items/1
+
+### View cart after removal
+GET {{host}}/users/1/cart
+
+### Clear cart
+DELETE {{host}}/users/1/cart
+
+### ============================================================
+### ORDERS
+### ============================================================
+
+### Re-populate cart before checkout
+POST {{host}}/users/1/cart/items
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "quantity": 1
+}
+
+###
+POST {{host}}/users/1/cart/items
+Content-Type: application/json
+
+{
+  "productId": 2,
+  "quantity": 2
+}
+
+### Checkout — create order from cart
+POST {{host}}/orders
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "shippingAddress": "123 Main St, Chennai, India"
+}
+
+### Checkout with empty cart (expect 400)
+POST {{host}}/orders
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "shippingAddress": "123 Main St"
+}
+
+### List all orders
+GET {{host}}/orders
+
+### Filter orders by user
+GET {{host}}/orders?userId=1
+
+### Filter orders by status
+GET {{host}}/orders?status=pending
+
+### Get order by id
+GET {{host}}/orders/1
+
+### Transition pending -> paid
+PATCH {{host}}/orders/1/status
+Content-Type: application/json
+
+{
+  "status": "paid"
+}
+
+### Transition paid -> shipped
+PATCH {{host}}/orders/1/status
+Content-Type: application/json
+
+{
+  "status": "shipped"
+}
+
+### Transition shipped -> delivered
+PATCH {{host}}/orders/1/status
+Content-Type: application/json
+
+{
+  "status": "delivered"
+}
+
+### Invalid transition delivered -> pending (expect 400)
+PATCH {{host}}/orders/1/status
+Content-Type: application/json
+
+{
+  "status": "pending"
+}
+
+### Create a second order to test cancellation
+POST {{host}}/users/1/cart/items
+Content-Type: application/json
+
+{
+  "productId": 2,
+  "quantity": 1
+}
+
+###
+POST {{host}}/orders
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "shippingAddress": "456 Second St"
+}
+
+### Cancel pending order (restocks inventory)
+PATCH {{host}}/orders/2/cancel
+
+### Cancel delivered order (expect 400)
+PATCH {{host}}/orders/1/cancel
