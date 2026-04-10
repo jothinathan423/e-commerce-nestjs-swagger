@@ -11,7 +11,7 @@ import { OrdersModule } from './orders/orders.module';
 @Module({
   imports: [
     MongooseModule.forRoot(
-      process.env.MONGO_URI ?? 'mongodb://localhost:27017/ecommerce',
+      process.env.MONGO_URI ?? 'mongodb+srv://jothinathan:jothi422@cluster0.5zwgrsl.mongodb.net/ecommercenest?retryWrites=true&w=majority&appName=Cluster0',
     ),
     UsersModule,
     CategoriesModule,
