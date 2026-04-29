@@ -31,6 +31,10 @@ export class CartController {
     return this.cartService.addItem(userId, dto.productId, dto.quantity);
   }
 
+
+
+
+
   @Patch('items/:productId')
   @ApiOperation({ summary: 'Update a cart item quantity' })
   @ApiConsumes('application/x-www-form-urlencoded', 'application/json')
@@ -43,6 +47,8 @@ export class CartController {
     return this.cartService.updateItem(userId, productId, dto.quantity);
   }
 
+
+  
   @Delete('items/:productId')
   @ApiOperation({ summary: 'Remove an item from the cart' })
   removeItem(
